@@ -1,5 +1,3 @@
-var firstTimer, secondTimer;
-
 class ProgressBlock {
   constructor(container) {
     this._create(container);
@@ -52,14 +50,22 @@ class ProgressBlock {
     this.circleLength = circleLength;
 
     this.input = this.root.querySelector(".value");
-    this.setProgress(100);
+
+    this.animationValue = 100;
+    this.setProgress(this.animationValue);
 
     this._addEventHandlers();
   }
 
   setProgress(value) {
     this.input.value = value;
-    const offset = this.circleLength - (value / 100) * this.circleLength;
+    this._playAnimation(value);
+  }
+
+  _playAnimation(value) {
+    this.animationValue = value;
+    const offset =
+      this.circleLength - (this.animationValue / 100) * this.circleLength;
     this.circle.style.strokeDashoffset = offset;
   }
 
@@ -76,17 +82,17 @@ class ProgressBlock {
     this.animateCheckbox.checked = isAnimated;
     const value = this.input.value;
     if (isAnimated) {
-      this.setProgress(0);
-      firstTimer = setInterval(() => {
-        this.setProgress(value);
+      this._playAnimation(0);
+      this.firstInterval = setInterval(() => {
+        this._playAnimation(value);
       }, 1500);
-      secondTimer = setInterval(() => {
-        this.setProgress(0);
+      this.secondInterval = setInterval(() => {
+        this._playAnimation(0);
       }, 3000);
     } else {
-      clearInterval(firstTimer);
-      clearInterval(secondTimer);
-      this.setProgress(value);
+      clearInterval(this.firstInterval);
+      clearInterval(this.secondInterval);
+      this._playAnimation(value);
     }
   }
 
@@ -96,6 +102,11 @@ class ProgressBlock {
       if (input.value < 0 || input.value > 100) {
         alert("Значение должно быть от 1 до 100!");
       } else {
+        clearInterval(this.firstInterval);
+        clearInterval(this.secondInterval);
+        this.setAnimated(this.animateCheckbox.checked);
+
+        this.animationValue = input.value;
         this.setProgress(input.value);
       }
     });
